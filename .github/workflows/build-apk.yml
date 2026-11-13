@@ -1,0 +1,43 @@
+# Builds an APK from the files in www/ every time you push (or tap "Run workflow").
+# Download it from the run's "Artifacts" section.
+name: Build APK
+
+on:
+  push:
+    paths: ["www/**", "app.env", ".github/workflows/build-apk.yml"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.10.2"
+
+      - name: Read settings from app.env
+        run: grep -E '^[A-Z_]+=' app.env >> "$GITHUB_ENV"
+
+      - name: Generate and build
+        run: |
+          ARGS=(www --name "$APP_NAME" --package "$APP_PACKAGE" --version "$APP_VERSION"
+                --version-code "${{ github.run_number }}" --orientation "$APP_ORIENTATION"
+                --out build-android --build)
+          [ -f www/icon.png ] && ARGS+=(--icon www/icon.png)
+          [ "$APP_FULLSCREEN" = "true" ] && ARGS+=(--fullscreen)
+          [ "$APP_KEEP_AWAKE" = "true" ] && ARGS+=(--keep-awake)
+          python3 html2apk.py "${ARGS[@]}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: "*-debug.apk"

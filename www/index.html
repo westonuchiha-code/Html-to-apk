@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My HTML App</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; min-height: 100vh; display: grid;
+         place-items: center; background: #f4f6fb; color: #1d2433; text-align: center; }
+  button { font-size: 1.2rem; padding: .8rem 1.6rem; border: 0; border-radius: 12px;
+           background: #3b5bdb; color: #fff; }
+</style>
+</head>
+<body>
+  <main>
+    <h1>It works!</h1>
+    <p>Replace the files in <code>www/</code> with your own site.</p>
+    <button id="b">Tapped 0 times</button>
+  </main>
+<script>
+  let n = Number(localStorage.getItem("taps") || 0);
+  const b = document.getElementById("b");
+  const show = () => b.textContent = `Tapped ${n} times`;
+  show();
+  b.onclick = () => { localStorage.setItem("taps", ++n); show(); };
+</script>
+</body>
+</html>
